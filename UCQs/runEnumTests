@@ -1,0 +1,18 @@
+#!/bin/bash
+
+  for dir in "$@"
+  do
+    cd $dir
+    #rm "report.txt"
+    for loop in 1 2 3 4 5 6 7 8 9 10
+    do  
+      # build
+      make clean
+      make ucq_test
+  
+      # run
+      echo "----------------------- $dir trial $loop -----------------------"
+      ./ucq_test
+  done
+  cd ..
+done

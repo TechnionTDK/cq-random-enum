@@ -1,0 +1,19 @@
+#!/bin/bash
+
+for dir in "$@"
+do
+    cd $dir
+
+    # build
+    make timing_test
+
+    # run
+    echo "----------------------- RUNNING TIMING TEST -----------------------"
+    rm "${dir}/TestsOutput/${dir}_delay.csv"
+    ./timing_test
+
+    cd ..
+done
+
+
+

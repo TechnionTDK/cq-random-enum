@@ -1,0 +1,10 @@
+_C_ ../db/customer.tbl
+_L_ ../db/lineitem.tbl
+_O_ ../db/orders.tbl
+_N_ ../db/nation.tbl
+_N1_ ../db/nation.tbl
+_N2_ ../db/nation.tbl
+_S_ ../db/supplier.tbl
+_PS_ ../db/partsupp.tbl
+_P_ ../db/part.tbl
+_R_ ../db/region.tbl
