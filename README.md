@@ -1,1 +1,1 @@
-# ucq-random-enum
+# cq-random-enum
