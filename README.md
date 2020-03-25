@@ -1,1 +1,3 @@
 # cq-random-enum
+
+This repository contains the code pertaining to the paper “Answering (Unions of) Conjunctive Queries using Random Access and Random-Order Enumeration”. The code is made up of a code generation module to generate code per-query and the general code of each algorithm. The code generation module is found under "RandomAccessCodeGeneration" along with instructions on how to generate code for a custom free-connex CQ. In order to use one of the algorithms or replicate the experiments found in the paper (either on the pre-existing CQs or a custom one) please refer to the document "Instructions to Replicate Experiments.pdf".
