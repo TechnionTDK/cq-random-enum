@@ -1,0 +1,131 @@
+#ifndef RANDOMORDERENUMERATION_{{query_name}}INDEX_H
+#define RANDOMORDERENUMERATION_{{query_name}}INDEX_H
+
+#include <iostream>
+#include <chrono>
+#include "../../AbstractDatabase/Table.h"
+#include "../../AbstractDatabase/SplitTable.h"
+#include <boost/functional/hash.hpp>
+#include "../../TemplatedRandomAccess/YannakakisReducer.h"
+#include "../../TemplatedRandomAccess/AbstractWeightCalculator.h"
+{{include_parcels}}
+#include "{{query_name}}Answer.h"
+#include "../../RandomAccessAuxCode/IndexUtils.h"
+
+typedef long long ll;
+
+using namespace std;
+
+//------------------------------------ Yannakakis Reducer ------------------------------------------
+//specifies reduction order
+struct {{query_name}}YannakakisReducer : YannakakisReducer<{{table_list}}> {
+    //you just need to arrange the calls to oneBottomUp according to the tree structure
+    void reduceBottomUp({{table_ref_list}}) override {
+        {{bottom_up_body}}
+    }
+
+    //you just need to arrange the calls to oneTopDown according to the tree structure
+    void reduceTopDown({{table_ref_list}}) override {
+        {{top_down_body}}
+    }
+};
+//------------------------------------------------------------------------------
+
+//------------------------------------ Table Weighter ------------------------------------------
+{{single_weighters}}
+
+#ifndef PROJECTION_{{query_name}}
+struct {{query_name}}Weighter : QueryWeighter<{{split_table_list}}> {
+    inline void weight({{split_table_ref_list}}) override {
+        {{weight_body}}
+    }
+};
+#else
+struct {{query_name}}Weighter : QueryWeighter<{{maybe_projected_split_table_list}}> {
+    inline void weight({{maybe_projected_split_table_ref_list}}) override {
+        {{weight_body}}
+    }
+};
+#endif
+//------------------------------------------------------------------------------
+
+//------------------------------------ RandomAccessIndex ------------------------------------------
+struct {{query_name}}RandomAccessIndex {
+
+    //Fields tables;
+	#ifdef PROJECTION_{{query_name}}
+	{{split_tables_fields_with_projection}}
+	#else
+	{{split_tables_fields}}
+	#endif
+    ll numAnswers;
+	
+	
+    //preprocessing
+	double preprocessing(const unordered_map<string, string>& filenames, const unordered_map<string, int>& numLines) {
+		//------------------------------------------------------- PREPROCESSING START!
+		auto t1 = chrono::steady_clock::now();
+		
+		{{tables_local_vars_decl}}
+		{{load_tables_from_files}}
+		
+		auto t2 = chrono::steady_clock::now();
+		
+		{{query_name}}YannakakisReducer().reduce({{tables_local_vars_list}});
+
+		#ifdef PROJECTION_{{query_name}}
+		{{projection_and_split}}
+		#else
+		{{split_tables_from_tables}}
+		#endif
+
+		{{query_name}}Weighter().weight({{split_table_var_list}});
+		
+		numAnswers = split_{{root}}tbl.getCummulativeWeight();
+		
+		auto t3 = chrono::steady_clock::now();
+		//cout << "reading time is " << chrono::duration_cast<chrono::microseconds>(t2 - t1).count() / 1000.0 << " milliseconds" << endl;
+		//cout << "building time is " << chrono::duration_cast<chrono::microseconds>(t3 - t2).count() / 1000.0 << " milliseconds" << endl;
+		//------------------------------------------------------- PREPROCESSING DONE!
+
+		return chrono::duration_cast<chrono::microseconds>(t3 - t2).count() / 1000.0;
+	}
+	
+	{{query_name}}Answer access(ll j) {
+		//if(j < 0 || j > numAnswers) {
+		//	cout << "tried to access answer no." << j << ", n = " << numAnswers << endl;
+		//	throw runtime_error("index beyond range " + to_string(j));
+		//}
+		
+		ll {{js}};
+		{{query_name}}Answer ans;
+		{{access_calls}}
+		return move(ans);
+	}
+	
+    #if defined(INVERSE_MAPPING) || defined(INVERTED_ACCESS)
+	ll index(const {{query_name}}Answer& ans) {
+		ll {{js_index}};
+		{{index_calls}}
+		return j_{{root}};
+	}
+	#endif
+	
+	
+private:
+	{{child_find_answer_functions}}
+	
+	#if defined(INVERSE_MAPPING) || defined(INVERTED_ACCESS)
+	{{child_find_index_functions}}
+	#endif
+	
+	static inline int getTupleIndex(const vector<ll>& prefixSum, ll j) {
+		return (upper_bound(prefixSum.begin(), prefixSum.end(), j) - prefixSum.begin() - 1);
+	}
+};
+
+typedef {{query_name}}RandomAccessIndex {{query_name}}Index;
+
+//------------------------------------------------------------------------------
+
+#endif //RANDOMORDERENUMERATION_{{query_name}}INDEX_H

@@ -1,0 +1,91 @@
+#ifndef RANDOMORDERENUMERATION_{{name}}PARCEL_H
+#define RANDOMORDERENUMERATION_{{name}}PARCEL_H
+
+#include <iostream>
+#include <chrono>
+#include "../../AbstractDatabase/Table.h"
+#include "../../AbstractDatabase/SplitTable.h"
+#include <boost/functional/hash.hpp>
+{{child_includes}}
+
+using namespace std;
+
+
+struct {{name}}Key {
+	//data
+	{{key_fields}}
+	//end-data
+	
+	void print() const {
+		{{key_print_body}}
+	}
+};
+
+
+struct {{name}}Parcel {
+	//data
+	{{fields}}
+	//end-data
+	
+	//construction
+	static {{name}}Parcel from(string line) {
+		{{from_body}}
+	}
+	
+	template<typename T>
+    T to() const {
+        throw runtime_error("not implemented");
+    }
+
+    void print() const {
+		{{print_body}}
+    }
+};
+
+//conversion to parent key
+template<> {{name}}Key {{name}}Parcel::to<{{name}}Key>() const {
+    return {{key_fields_init_list}};
+}
+
+//conversion to childKeys
+{{child_conversion}}
+
+//hashers & equality operators
+namespace std {
+    template<>
+    struct hash<{{name}}Key> {
+        size_t operator()(const {{name}}Key& p) const {
+			size_t seed = 0;
+            {{key_hash_combine}}
+            return seed;
+        }
+    };
+	
+	template<>
+    struct hash<{{name}}Parcel> {
+        size_t operator()(const {{name}}Parcel& p) const {
+			size_t seed = 0;
+            {{hash_combine}}
+            return seed;
+        }
+    };
+
+    template<>
+    struct equal_to<{{name}}Key> {
+        bool operator()(const {{name}}Key& lhs, const {{name}}Key& rhs) const {
+            return {{key_equal_to_conditions}};
+        }
+    };
+	
+	template<>
+    struct equal_to<{{name}}Parcel> {
+        bool operator()(const {{name}}Parcel& lhs, const {{name}}Parcel& rhs) const {
+            return {{equal_to_conditions}};
+        }
+    };
+}
+
+typedef Table<{{name}}Parcel> {{name}}Table;
+typedef SplitTable<{{name}}Key, {{name}}Parcel> {{name}}SplitTable;
+
+#endif //RANDOMORDERENUMERATION_{{name}}PARCEL_H

@@ -1,0 +1,22 @@
+inline void find_answer_{{tblname}}({{query_name}}Answer& answer, ll j/*, int& position*/{{child_indx_refs}}) {
+		//step 1 - find the appropriate bucket
+		#ifndef PROJECTION_{{query_name}}
+		const auto& bucket = split_{{tblname_lower}}tbl.buckets[answer.to<{{tblname}}Key>()];
+		#else
+		const auto& bucket = split_{{tblname_lower}}tbl.buckets[answer.to<{{is_projected}}{{tblname}}Key>()];
+		#endif
+
+		//step 2 - find tuple & update the answer
+		int ind = getTupleIndex(bucket.weightPrefixSum, j);
+		//Row<{{tblname}}Parcel> r = bucket.data[ind];
+		answer.set(bucket.data[ind].parcel);
+
+		//step 3 - find position & indices for children
+		ll j_tag = (j - bucket.weightPrefixSum[ind]); // relative inside the group
+		#ifndef PROJECTION_{{query_name}}
+		{{new_indices}}vector<ll> new_indices = IndexUtils::split(j_tag/* / r.card*/, {{caps}});
+		#else
+		{{new_indices}}vector<ll> new_indices = IndexUtils::split(j_tag/* / r.card*/, {{caps_2}});
+		#endif
+		{{child_indx_ref_assignment}}
+	}

@@ -1,0 +1,116 @@
+#ifndef RANDOMORDERENUMERATION_{{query_name}}ANSWER_H
+#define RANDOMORDERENUMERATION_{{query_name}}ANSWER_H
+
+#include <iostream>
+#include <chrono>
+#include <boost/functional/hash.hpp>
+
+using namespace std;
+
+#ifndef PROJECTION_{{query_name}}
+
+{{include_all_parcels}}
+
+struct {{query_name}}Answer {
+	//data
+	{{vars}}
+	//end data
+	
+	template<typename T>
+    T to() const {
+        throw runtime_error("not implemented");
+    }
+	
+	template<typename T>
+    void set(const T& t) {
+        throw runtime_error("not implemented");
+    }
+
+    void print() const {
+		{{print_body}}
+    }
+	
+	string to_string() const {
+		{{to_string_body}}
+	}
+};
+
+{{to_specializations}}
+
+
+{{set_specializations}}
+
+//hashers & equality operators
+namespace std {
+	template<>
+    struct hash<{{query_name}}Answer> {
+        size_t operator()(const {{query_name}}Answer& p) const {
+			size_t seed = 0;
+            {{hash_combine}}
+            return seed;
+        }
+    };
+
+    template<>
+    struct equal_to<{{query_name}}Answer> {
+        bool operator()(const {{query_name}}Answer& lhs, const {{query_name}}Answer& rhs) const {
+            return {{equal_to_conditions}};
+        }
+    };
+}
+
+#else
+
+{{include_all_parcels_2}}
+
+struct {{query_name}}Answer {
+	//data
+	{{freevars}}
+	//end data
+	
+	template<typename T>
+    T to() const {
+        throw runtime_error("not implemented");
+    }
+	
+	template<typename T>
+    void set(const T& t) {
+        throw runtime_error("not implemented");
+    }
+
+    void print() const {
+		{{print_body_2}}
+    }
+	
+	string to_string() const {
+		{{to_string_body_2}}
+	}
+};
+
+{{to_specializations_2}}
+
+
+{{set_specializations_2}}
+
+//hashers & equality operators
+namespace std {
+	template<>
+    struct hash<{{query_name}}Answer> {
+        size_t operator()(const {{query_name}}Answer& p) const {
+			size_t seed = 0;
+            {{hash_combine_2}}
+            return seed;
+        }
+    };
+
+    template<>
+    struct equal_to<{{query_name}}Answer> {
+        bool operator()(const {{query_name}}Answer& lhs, const {{query_name}}Answer& rhs) const {
+            return {{equal_to_conditions_2}};
+        }
+    };
+}
+
+#endif
+
+#endif //RANDOMORDERENUMERATION_{{query_name}}ANSWER_H

@@ -1,0 +1,29 @@
+{
+  "array" :
+  [
+    {
+    "name": "_R_",
+    "fields": [["int", "x"], ["int", "y"]],
+    "keyFields": [],
+    "usecols": [0, 2],
+    "conversionFunctions": {"int": "stoi", "long long": "stoll", "string": "", "double": "stod"},
+    "childrenInterAttr" : {"_S_": ["y"]}
+    },
+    {
+    "name": "_S_",
+    "fields": [["int", "y"],["int", "z"]],
+    "keyFields": ["y"],
+    "usecols": [0, 3],
+    "conversionFunctions": {"int": "stoi", "long long": "stoll", "string": "", "double": "stod"},
+    "childrenInterAttr" : {"_T_":  ["z"]}
+    },
+    {
+    "name": "_T_",
+    "fields": [["int", "z"], ["int", "v"], ["int", "w"]],
+    "keyFields": ["z"],
+    "usecols": [0, 1, 2],
+    "conversionFunctions": {"int": "stoi", "long long": "stoll", "string": "", "double": "stod"},
+    "childrenInterAttr" : {}
+    }
+  ]
+}

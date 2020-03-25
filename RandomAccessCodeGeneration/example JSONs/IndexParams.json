@@ -1,0 +1,19 @@
+{
+  "name": "Qex",
+
+  "root": "_R_",
+
+  "tbls": ["_R_", "_S_", "_T_"],
+
+  "projection": {"_R_": false, "_S_": false, "_T_": true},
+
+  "postorder": ["_R_", "_S_", "_T_"],
+
+  "preorder": ["_T_", "_S_", "_R_"],
+
+  "tree": {
+           "_R_":  {"parent": null, "children": ["_S_"]},
+           "_S_":  {"parent": "_R_", "children": ["_T_"]},
+           "_T_":  {"parent": "_S_", "children": []}
+          }
+}

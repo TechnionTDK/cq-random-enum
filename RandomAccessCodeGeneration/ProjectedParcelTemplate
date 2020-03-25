@@ -1,0 +1,94 @@
+#ifdef PROJECTION_{{query_name}}
+
+#ifndef RANDOMORDERENUMERATION_PROJECTED_{{name}}PARCEL_H
+#define RANDOMORDERENUMERATION_PROJECTED_{{name}}PARCEL_H
+
+#include <iostream>
+#include <chrono>
+#include "../../AbstractDatabase/Table.h"
+#include "../../AbstractDatabase/SplitTable.h"
+#include <boost/functional/hash.hpp>
+{{full_parcel_include}}
+{{maybe_projected_child_includes}}
+
+using namespace std;
+
+struct PROJECTED_{{name}}Key {
+	//data
+	{{key_fields}}
+	//end-data
+	
+	void print() const {
+		{{key_print_body}}
+	}
+};
+
+struct PROJECTED_{{name}}Parcel {
+	//data
+	{{fields}}
+	//end-data
+	
+	//construction
+	static PROJECTED_{{name}}Parcel from({{name}}Parcel p) {
+		{{from_body}}
+	}
+	
+	template<typename T>
+    T to() const {
+        throw runtime_error("not implemented");
+    }
+
+    void print() const {
+		{{print_body}}
+    }
+};
+
+//conversion to parent key
+template<> PROJECTED_{{name}}Key PROJECTED_{{name}}Parcel::to<PROJECTED_{{name}}Key>() const {
+    return {{key_fields_init_list}};
+}
+
+//conversion to childKeys
+{{maybe_projected_child_conversion}}
+
+//hashers & equality operators
+namespace std {
+    template<>
+    struct hash<PROJECTED_{{name}}Key> {
+        size_t operator()(const PROJECTED_{{name}}Key& p) const {
+			size_t seed = 0;
+            {{key_hash_combine}}
+            return seed;
+        }
+    };
+	
+	template<>
+    struct hash<PROJECTED_{{name}}Parcel> {
+        size_t operator()(const PROJECTED_{{name}}Parcel& p) const {
+			size_t seed = 0;
+            {{hash_combine}}
+            return seed;
+        }
+    };
+
+    template<>
+    struct equal_to<PROJECTED_{{name}}Key> {
+        bool operator()(const PROJECTED_{{name}}Key& lhs, const PROJECTED_{{name}}Key& rhs) const {
+            return {{key_equal_to_conditions}};
+        }
+    };
+	
+	template<>
+    struct equal_to<PROJECTED_{{name}}Parcel> {
+        bool operator()(const PROJECTED_{{name}}Parcel& lhs, const PROJECTED_{{name}}Parcel& rhs) const {
+            return {{equal_to_conditions}};
+        }
+    };
+}
+
+typedef Table<PROJECTED_{{name}}Parcel> PROJECTED_{{name}}Table;
+typedef SplitTable<PROJECTED_{{name}}Key, PROJECTED_{{name}}Parcel> PROJECTED_{{name}}SplitTable;
+
+#endif //RANDOMORDERENUMERATION_PROJECTED_{{name}}PARCEL_H
+
+#endif

@@ -1,0 +1,17 @@
+{
+  "name": "Qex",
+
+  "vars": ["x", "y", "z", "v", "w"],
+
+  "freevars": ["x", "y", "z"],
+
+  "types" : {"x": "int", "y": "int", "z": "int", "v": "int", "w": "int"},
+
+  "varsDict": {"_R_": ["x","y"], "_S_": ["y","z"], "_T_":  ["z","v","w"]},
+
+  "freevarsDict": {"_R_": ["x","y"], "_S_": ["y","z"], "_T_":  ["z"]},
+
+  "keyvarsDict": {"_R_": [], "_S_": ["y"], "_T_":  ["z"]},
+
+  "freekeyvarsDict": {"_R_": [], "_S_": ["y"], "_T_":  ["z"]}
+}

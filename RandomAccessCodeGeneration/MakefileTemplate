@@ -1,0 +1,30 @@
+enum_test : {{name}}_enumeration_test.o 
+	g++ -std=c++14 -O3 -o enum_test {{name}}_enumeration_test.o
+	rm {{name}}_enumeration_test.o
+
+{{name}}_enumeration_test.o : {{name}}_enumeration_test.cpp
+	g++ -std=c++14 -O3 -c {{name}}_enumeration_test.cpp
+
+
+timing_test : {{name}}_timing_test.o
+	g++ -std=c++14 -O3 -o timing_test {{name}}_timing_test.o
+	rm {{name}}_timing_test.o
+
+{{name}}_timing_test.o : {{name}}_timing_test.cpp
+	g++ -std=c++14 -O3 -c {{name}}_timing_test.cpp
+
+
+log : {{name}}_log.o 
+	g++ -std=c++14 -O3 -o log {{name}}_log.o
+	rm {{name}}_log.o
+
+{{name}}_log.o : {{name}}_enumeration_test.cpp
+	g++ -std=c++14 -O3 -c -DPRINT -o {{name}}_log.o {{name}}_enumeration_test.cpp
+
+
+
+clean :
+	rm enum_test 2> /dev/null > /dev/null
+	rm timing_test 2> /dev/null > /dev/null
+	rm log 2> /dev/null > /dev/null
+  

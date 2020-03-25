@@ -1,0 +1,12 @@
+{
+  "tbls" : ["_T_"],
+  "array" : 
+  [
+    {
+      "name": "_T_",
+      "fields": [["int","z"]],
+      "keyFields": ["z"],
+      "childrenInterAttr" : {}
+    }
+  ]
+}

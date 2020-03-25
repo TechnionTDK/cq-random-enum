@@ -1,0 +1,24 @@
+inline bool find_index_{{tblname}}(const {{query_name}}Answer& answer{{child_indx}}, ll& j) {
+        //step 1 - find the appropriate bucket
+		#ifndef PROJECTION_{{query_name}}
+		const auto& bucket = split_{{tblname_lower}}tbl.buckets[answer.to<{{tblname}}Key>()];
+		#else
+		const auto& bucket = split_{{tblname_lower}}tbl.buckets[answer.to<{{is_projected}}{{tblname}}Key>()];
+		#endif
+
+		//step 2 - find tuple & its offset
+		#ifndef PROJECTION_{{query_name}}
+		auto it = bucket.weightOffsetMap.find(answer.to<{{tblname}}Parcel>());
+		#else
+		auto it = bucket.weightOffsetMap.find(answer.to<{{is_projected}}{{tblname}}Parcel>());
+		#endif
+		if(it == bucket.weightOffsetMap.end()) return false; //testing failed, this is not an answer
+		
+		//step 3 - find position & indices for children
+		#ifndef PROJECTION_{{query_name}}
+		j = it->second /*offset*/ {{combine_comment_start}}+ IndexUtils::combine({{child_indx_call}}, {{caps}}){{combine_comment_end}};
+		#else
+		j = it->second /*offset*/ {{combine_comment_start}}+ IndexUtils::combine({{child_indx_call}}, {{caps_2}}){{combine_comment_end}};
+		#endif
+		return true;
+	}
