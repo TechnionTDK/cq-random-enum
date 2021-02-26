@@ -36,23 +36,29 @@ struct ROE_Base {
      * @return 0 <= i < n, the index the answer if it exists and -1 otherwise
      */
     virtual ll findIndex(const Answer& a) = 0;
-#endif
 
-#ifdef INVERSE_MAPPING
-    virtual void disqualifyAnswer(ll j/*, int origin, int me*/) = 0;
+    virtual void disqualifyAnswer(const Answer& a) = 0;
+
+    virtual void disqualifyAnswer(ll j) = 0;
 
     virtual bool wasDisqualified(ll base) = 0;
 
     virtual bool wasNotDisqualified(ll base) = 0;
 #endif
 
-    virtual ll getNumAnswers() = 0;
+#ifdef USING_DUAL_SAMPLING
+    virtual void putBack(const Answer& a) = 0;
 
-//    virtual void checkShufflerStatus() = 0;
+    virtual Answer peek() = 0;
+
+    virtual void commit(const Answer& a) = 0;
+#endif
+
+    virtual ll getNumAnswers() = 0;
 };
 
 template<typename RAIndex, typename Shuffler, typename Answer>
-struct RandomOrderEnumeration : ROE_Base<Answer> {
+struct RandomOrderEnumeration : public ROE_Base<Answer> {
     RAIndex* index;
     Shuffler shuffler;
 
@@ -91,18 +97,18 @@ struct RandomOrderEnumeration : ROE_Base<Answer> {
 
 #if defined(INVERSE_MAPPING) || defined(INVERTED_ACCESS)
     inline ll findIndex(const Answer& a) override {
-        //ll base = index->index(a);
-        //if(base == ANSWER_NOT_FOUND) return ANSWER_NOT_FOUND;
-        //if(!shuffler.fresh(base)) return ANSWER_NOT_FRESH;
-        return index->index(a); //base;
-
+        return index->index(a);
     }
 
-#endif
+    void disqualifyAnswer(const Answer& a) override
+    {
+        ll i = findIndex(a);
+        assert(-1 != i);
+        shuffler.disqualify(i);
+    }
 
-    #ifdef INVERSE_MAPPING
-    inline void disqualifyAnswer(ll j/*, int origin, int me*/) override {
-        shuffler.disqualify(j/*, origin, me*/);
+    inline void disqualifyAnswer(ll j) override {
+        shuffler.disqualify(j);
     }
 
     inline bool wasDisqualified(ll base) override {
@@ -113,6 +119,24 @@ struct RandomOrderEnumeration : ROE_Base<Answer> {
         return !shuffler.wasDisqualified(base);
     }
     #endif
+
+#ifdef USING_DUAL_SAMPLING
+    void putBack(const Answer& a) override 
+    {
+        assert(-1 != findIndex(a)); // Can't put back an answer that doesn't belong to us
+        shuffler.putBack(findIndex(a));
+    }
+
+    Answer peek() override
+    {
+        return std::move(access(shuffler.peek()));
+    }
+
+    void commit(const Answer& a) override
+    {
+        shuffler.commit(findIndex(a));
+    }
+#endif
 
     inline ll getNumAnswers() override {
         return index->numAnswers;

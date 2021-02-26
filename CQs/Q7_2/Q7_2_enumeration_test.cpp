@@ -71,7 +71,7 @@ vector<double> readSampleRatios(const string& filename) {
 int main() {
     
     // read unordered_map for files here
-    unordered_map<string, string> filenames = readFilenames("../filenames.txt");
+    unordered_map<string, string> filenames = readFilenames("../../db/filenames.txt");
     
     // read unordered_map for number of lines per table here
     unordered_map<string, int> numlines = readNumLines("../../db/numlines.txt");
@@ -85,11 +85,12 @@ int main() {
     //out << endl;
     //out << "sample ratio [%], build time [sec], sample time [sec]" << endl;
 
-    #ifdef PRINT
+#ifdef PRINT
     ofstream log;
-    log.open("TestsOutput/Q0_answers.csv", ios::out);
+    log.open("/home/shaizeevi/Q7_2.csv", ios::out);
     sample_ratios = {1.0};
-    #endif
+    assert(!log.fail());
+#endif
 
     auto t1 = chrono::steady_clock::now();
     Q7_2RandomOrderEnumeration enume;

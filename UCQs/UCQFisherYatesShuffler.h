@@ -52,10 +52,12 @@ public:
         return value_of_j;
     }
 
-    inline void disqualify(ll j/*, int origin, int me*/) {
-
+    // Remark: Disqualification only takes place if the answer is viable
+    //         Attempting to disqualify a non-viable answer simply does nothing
+    inline void disqualify(ll j) {
         //if(wasDisqualified(j)) throw runtime_error("cannot disqualify a disqualified answer");
         //assert(find(j) >= i || origin == me); // !disqualified
+        assert(i <= find(j));
 
         if(i <= find(j)) {
             //swap A[i] (current spot) with A[H[j]] (answer no. j)
@@ -84,37 +86,60 @@ public:
         return !wasDisqualified(j);
     }
 
+#ifdef USING_DUAL_SAMPLING
+/*
+    Returns a next possible answer, without advancing the shuffler index.
+    Return value - an answer index in [0, n)
+*/ 
+    ll peek()
+    {
+        ll j = uniform_int_distribution<ll>(i, n-1)(generator); //this is a location, not value
+        return at(j);
+    }
 
+/*
+    Completes the peek operation by committing to the answer it returned.
+    Meaning, it will be deleted from the shuffler.
+*/
+    void commit(ll j)
+    {
+        if(i > find(j))
+        {
+            throw runtime_error("Cannot commit to stale answer");
+        }
+        
+        //swap A[i] (current spot) with A[H[j]] (answer no. j)
+        ll loc_of_j = find(j);
+        ll value_of_i = at(i);
 
-//    string padded(ll j) {
-//        if(j < 10) return " " + to_string(j);
-//        else return to_string(j);
-//    }
+        A[loc_of_j] = value_of_i;
+        A[i] = j;
 
-//    void printStatus() {
-//        cout << "      ";
-//        for(ll k = 0; k < n; k++) {
-//            cout << padded(k) << " | ";
-//        }
-//        cout << endl;
-//
-//        cout << "  at: ";
-//        for(ll k = 0; k < n; k++) {
-//            cout << padded(at(k)) << " | ";
-//        }
-//        cout << endl;
-//        cout << "find: ";
-//        for(ll k = 0; k < n; k++) {
-//            cout << padded(find(k)) << " | ";
-//        }
-//        cout << endl;
-//    }
+        H[j] = i;
+        H[value_of_i] = loc_of_j;
 
-//    void checkStatus() {
-//        for(int j = 0; j < n; j++) {
-//            assert(at(find(j)) == j);
-//        }
-//    }
+        i++;
+    }
+
+    inline void putBack(ll j) {
+        assert(0 <= j);
+        assert(j < n);
+        assert(0 < i);
+        assert(find(j) < i); // Assert the answer is not there
+
+        i--; // Take the index back
+
+        // Swap j with A[i], where i is already decremented
+        ll loc_of_j = find(j);
+        ll value_of_i = at(i);
+
+        A[loc_of_j] = value_of_i;
+        A[i] = j;
+
+        H[j] = i;
+        H[value_of_i] = loc_of_j;
+    }
+#endif
 
 
 private:

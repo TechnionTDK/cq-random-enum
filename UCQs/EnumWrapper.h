@@ -9,9 +9,12 @@
 
 #endif //TEMPLATEDRANDOMORDERENUMERATION_INDEXWRAPPER_H
 
-
+/*
+ *  Wraps an enumerator that returns Ans to one that returns WrapperAns.
+ *  Only works if a c'tor WrapperAns(Ans) exists
+ */
 template<typename Enum, typename Ans, typename WrapperAns>
-struct EnumWrapper : ROE_Base<WrapperAns> {
+struct EnumWrapper : public ROE_Base<WrapperAns> {
 
     Enum* enume;
 
@@ -23,7 +26,6 @@ struct EnumWrapper : ROE_Base<WrapperAns> {
     ~EnumWrapper() {
         delete enume;
     }
-
 
     double preprocessing(const unordered_map<string, string>& filenames, const unordered_map<string, int>& numlines) override {
         return enume->preprocessing(filenames, numlines);
@@ -47,7 +49,7 @@ struct EnumWrapper : ROE_Base<WrapperAns> {
         return WrapperAns(enume->access(j));
     };
 
-#ifdef INVERSE_MAPPING
+#if defined(INVERSE_MAPPING) || defined(INVERTED_ACCESS)
     /**
      * @param a - an Answer instance
      * @return 0 <= i < n, the index the answer if it exists and -1 otherwise
@@ -56,8 +58,13 @@ struct EnumWrapper : ROE_Base<WrapperAns> {
         return enume->findIndex(a.template unwrap<Ans>());
     };
 
-    void disqualifyAnswer(ll j/*, int origin, int me*/) override {
-        enume->disqualifyAnswer(j/*, origin, me*/);
+    void disqualifyAnswer(const WrapperAns& a) override
+    {
+        enume->disqualifyAnswer(a.template unwrap<Ans>());
+    }
+
+    void disqualifyAnswer(ll j) override {
+        enume->disqualifyAnswer(j);
     };
 
     bool wasDisqualified(ll base) override {
@@ -67,6 +74,23 @@ struct EnumWrapper : ROE_Base<WrapperAns> {
     bool wasNotDisqualified(ll base) override {
         return enume->wasNotDisqualified(base);
     };
+#endif
+
+#ifdef USING_DUAL_SAMPLING
+    void putBack(const WrapperAns& a) override
+    {
+        enume->putBack(a.template unwrap<Ans>());
+    }
+
+    WrapperAns peek() override
+    {
+        return enume->peek();
+    }
+
+    void commit(const WrapperAns& a)
+    {
+        enume->commit(a.template unwrap<Ans>());
+    }
 #endif
 
     ll getNumAnswers() override {
